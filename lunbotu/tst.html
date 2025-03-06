@@ -1,0 +1,107 @@
+<!-- 轮播图，自动播放，鼠标悬停暂停，鼠标离开恢复播放，点击左右箭头切换图片，无缝切换 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carousel</title>
+    <style>
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: auto;
+            overflow: hidden;
+        }
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        .navigation {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+        .prev, .next {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <div class="slides">
+            <div class="slide"><img src="image1.png" alt="Image 1"></div>
+            <div class="slide"><img src="image2.png" alt="Image 2"></div>
+            <div class="slide"><img src="image3.png" alt="Image 3"></div>
+        </div>
+        <div class="navigation">
+            <button class="prev">&#10094;</button>
+            <button class="next">&#10095;</button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelector('.slides');//获取slides
+        const slide = document.querySelectorAll('.slide');//获取slide
+        const prev = document.querySelector('.prev');
+        const next = document.querySelector('.next');
+        let index = 0;
+        let isTransitioning = false;
+
+        const firstClone = slide[0].cloneNode(true);
+        const lastClone = slide[slide.length - 1].cloneNode(true);
+        slides.append(firstClone);//在slides后面添加第一张图片的副本
+        slides.prepend(lastClone);//在slides前面添加最后一张图片的副本
+        function showSlide(n) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            index += n;
+            slides.style.transition = 'transform 0.5s ease-in-out';//设置过渡效果
+            slides.style.transform = `translateX(${-index * 100}%)`;//设置transform属性
+
+            // 判断是否是第一张或最后一张
+            setTimeout(() => {
+                if (index === 0) {//如果是最后一张图片的副本
+                    slides.style.transition = 'none';//去掉过渡效果
+                    index = slide.length;//设置index为最后一张
+                    slides.style.transform = `translateX(${-index * 100}%)`;//设置transform属性
+                } else if (index === slide.length + 1) {//如果是第一张图片的副本
+                    slides.style.transition = 'none';//去掉过渡效果
+                    index = 1;//设置index为第一张
+                    slides.style.transform = `translateX(${-index * 100}%)`;//设置transform属性
+                }
+                isTransitioning = false;
+            }, 500);
+        }
+
+        prev.addEventListener('click', () => showSlide(-1));
+        next.addEventListener('click', () => showSlide(1));
+
+        // 自动播放
+        let timer = setInterval(() => showSlide(1), 2000);
+
+        // 鼠标悬停时暂停自动播放
+        document.querySelector('.carousel').addEventListener('mouseenter', () => {
+            clearInterval(timer);
+        });
+
+        // 鼠标离开时恢复自动播放
+        document.querySelector('.carousel').addEventListener('mouseleave', () => {
+            timer = setInterval(() => showSlide(1), 2000);
+        });
+
+    </script>
+</body>
+</html>
